@@ -227,6 +227,7 @@ bool Grafo::breadthFirstSearch(int source, int target, Grafo &g){
         for(int j = 0; j <= Vecinos.size();){
            actual = Vecinos.nodeFrente();
         if(actual->dato() == target){
+                printf("Exixste camino de vertice [%i] al vertice [%i] \n", source, target);
             return true;
         }
         cola.enqueue(actual->dato());
@@ -237,6 +238,7 @@ bool Grafo::breadthFirstSearch(int source, int target, Grafo &g){
         }
 
     }
+    printf("No exixste camino de vertice [%i] al vertice [%i] \n", source, target);
     return false;
 }
 
