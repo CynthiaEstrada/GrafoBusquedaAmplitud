@@ -23,7 +23,8 @@ public:
 
     int mar[6];
     Grafo(int);
-    int vecindad = 0;
+    //int vecinos[5];
+    //int vecindad;
 
      // ~ Falta destructor
 
@@ -34,8 +35,9 @@ public:
 
       bool breadthFirstSearch(int, int, Grafo &);
       bool buscarMarcado(int);
-      bool Vecindad(int, Grafo &);
-      int sizeVecindad(){return vecindad;}
+      bool Vecindad(int, Grafo &); //antes era bool y regresaba un tru si si era vecino;
+      void calcularVecindad(int, Grafo &);
+      //int sizeVecindad(){return vecindad;}
 };
 
  void print(Grafo &);
@@ -65,6 +67,8 @@ public:
     bool Vacia(){return s == 0 ? true : false;}
     int size(){return s;}
     void mostrar();
+    node *frente(node *_a){return _frente = _a;}
+	node *nodeFrente(){return _frente;}
 
  };
 
@@ -72,37 +76,38 @@ public:
 
      node *nuevo = new node(x);
 
-    if(Cola.Vacia()){
-        _frente = nuevo;
+    if(Vacia()){
+        frente(nuevo);
         s++;
     }
     else{
-            node *actual = _frente;
-        while(actual ->_siguiente != NULL){
-            actual = actual->_siguiente;
+            node *actual = nodeFrente();
+        while(actual ->siguiente(actual) != NULL){
+            actual = actual->siguiente(actual);
         }
-        actual ->_siguiente = nuevo;
+        actual ->apuntador(actual, nuevo);
     }
  }
 
  int Cola::dequeue(){
 
-    if(_frente == NULL)return -1;
+    if(nodeFrente() == NULL)return -1;
     int valor;
-    node *aux = _frente;
-    valor = _frente->_data;
-    _frente = aux->_siguiente;
+    node *aux = nodeFrente();
+    valor = nodeFrente()->dato();
+   frente(aux->siguiente(aux));
     --s;
     return valor;
  }
+ Cola Vecinos;
 
  void Cola::mostrar()
 {
 	node *actual = nodeFrente();
 	while(actual != NULL)
 	{
-		printf("%i ", actual->_data);
-		actual = actual->_siguiente);
+		printf("%i ", actual->dato());
+		actual = actual->siguiente(actual);
 	}
 	puts("");
 }
@@ -153,7 +158,7 @@ public:
         void print(Grafo &g){
 
             for(int i = 2; i <= g._n; i++){
-                    g.v[i] = false;
+                   // g.v[i] = false;
                 for(int j = 1; j < i; j++){
                     printf("[%i:%i] %i\n", i, j, g.v[g.f(i,j)]);
                     //printf("[%i:%i] %i\n", i, j, g.edge(i,j));
@@ -173,14 +178,26 @@ bool Grafo::buscarMarcado(int x){
     //printf("El numero no estaba marcado: %i\n", x);
     return false;
 }
+void Grafo::calcularVecindad(int u, Grafo &g){
 
+   for(int j = 1; j <= 6;){
+    if(g.v[f(u, j)] && !buscarMarcado(j)){
+    Vecinos.enqueue(j);
+    j++;
+    }
+    else{
+        j++;
+    }
+   }
+
+}
 bool Grafo::Vecindad(int x, Grafo &g){
 
     for(int j = 1; j <= n();){
             //printf("%i se busca que sea vecino\n", j);
         if(g.v[f(x, j)] && !buscarMarcado(j)){
                 vecino = j;
-                vecindad ++;
+               // vecindad ++;
                 //printf("%i si es vecino:\n", vecino);
             return true;
         }else{
@@ -188,27 +205,37 @@ bool Grafo::Vecindad(int x, Grafo &g){
         }
     }
     //printf("%i no tiene vecinos disponibles");
-    return false;
+   return false;
+    //return vecindad;
+
 }
 
 bool Grafo::breadthFirstSearch(int source, int target, Grafo &g){
 
     Cola cola;
     int i = 0;
+    int u;
+    node *actual;
 
     cola.enqueue(source);
     mar[i] = source;
     i++;
     while (!cola.Vacia()){
         u = cola.dequeue();
-        for(int j = 0; j < vecindad;){
-        if(vecino == target){
+        calcularVecindad(u, g);
+
+        for(int j = 0; j <= Vecinos.size();){
+           actual = Vecinos.nodeFrente();
+        if(actual->dato() == target){
             return true;
         }
-        cola.enqueue(vecino);
-        mar[i] = vecino;
+        cola.enqueue(actual->dato());
+        mar[i] = actual->dato();
         i++;
+        j++;
+        Vecinos.dequeue();
         }
+
     }
     return false;
 }
@@ -216,10 +243,6 @@ bool Grafo::breadthFirstSearch(int source, int target, Grafo &g){
 
 int main(){
 
-    /*int t;
-    scanf("%i", &t);
-
-    Grafo g(t);*/
     Grafo g(6);
     int sour, tar;
 
@@ -235,11 +258,12 @@ int main(){
 
     print(g);
 
-    printf("comienza Busqueda a profundidad\n");
+    printf("comienza Busqueda en amplitud\n");
     printf("Source: \n");
     scanf("%i", &sour);
     printf("Target: \n");
     scanf("%i", &tar);
+    g.breadthFirstSearch(sour, tar, g);
 
     return 0;
 }
